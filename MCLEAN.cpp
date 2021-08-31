@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <cstring>
 #define up(i,a,b) for (int i = a; i <= b; i++)
 #define pii pair<int, int>
 #define f first
@@ -16,24 +17,11 @@ pii st;
 pii V[11];
 int cnt;
 
-void input(){
-    cnt = 0;
-    up(i,1,n){
-        up(j,1,m){
-            cin >> a[i][j];
-            if (a[i][j] == 'o') st = make_pair(i, j);
-            if (a[i][j] == '*'){
-                V[++cnt] = make_pair(i, j);
-            }
-        }
-    }
-}
-
 queue<pii> Q;
 int dis[maxn][maxn];
+int P[maxn];
 const int dx[] = {0, 1, 0, -1, 0};
 const int dy[] = {0, 0, 1, 0, -1};
-int P[maxn];
 
 bool beyond(int x, int y){
     return (x < 1 || x > n || y < 1 || y > m);
@@ -71,9 +59,8 @@ void Dp_Bit(){
     int res = LIM;
     memset(F, 60, sizeof(F));
     int mask = (1 << cnt) - 1;
-    up(i, 0, cnt-1){
-        F[1 << i][i] = P[i+1];
-    }
+    up(i, 0, cnt-1)  F[1 << i][i] = P[i+1];
+    
     up(x, 0, mask){
         up(i, 0, cnt-1){
             if (bit(x, i))
@@ -88,6 +75,25 @@ void Dp_Bit(){
     cout << res << "\n";
 }
 
+void init(){
+    up(i,1,cnt) P[i] = BFS(st, V[i]);
+
+    up(i,1,cnt)
+    up(j, i+1, cnt)
+    T[i-1][j-1] = T[j-1][i-1] = BFS(V[i], V[j]);    
+}
+
+void input(){
+    cnt = 0;
+    up(i,1,n){
+        up(j,1,m){
+            cin >> a[i][j];
+            if (a[i][j] == 'o') st = make_pair(i, j);
+            if (a[i][j] == '*') V[++cnt] = make_pair(i, j);
+        }
+    }
+}
+
 signed main(){
     ios_base::sync_with_stdio(false);
     cin.tie(0);
@@ -96,16 +102,7 @@ signed main(){
     while (cin >> m >> n){
         if (n == 0 && m == 0) exit(0);
         input();
-        up(i,1,cnt){
-            P[i] = BFS(st, V[i]);
-        }
-
-        up(i,1,cnt){
-            up(j, i+1, cnt){
-                T[i-1][j-1] = T[j-1][i-1] = BFS(V[i], V[j]);
-            }
-        }
-
+        init();
         Dp_Bit();
     }
 }
